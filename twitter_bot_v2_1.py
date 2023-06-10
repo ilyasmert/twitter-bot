@@ -18,23 +18,19 @@ api = tweepy.API(auth)
 openai.api_key = '<OPENAI_API_KEY>'
 
 
-def read_tweets_from_file(file_path):
-    with open(file_path, "r") as file:
-        tweets = file.read().splitlines()
-    return tweets
-
 def generate_tweet(prompt, max_tokens=280, temperature=0.8, max_length=280):
     while True:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt,
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a twitter bot that tweets in the style of a user."},
+                {"role": "user", "content": prompt}
+            ],
             max_tokens=max_tokens,
-            n=1,
-            stop=None,
             temperature=temperature,
         )
 
-        tweet = response.choices[0].text.strip()
+        tweet = response['choices'][0]['message']['content'].strip()
     
         if len(tweet) <= max_length:
     	    break
@@ -43,11 +39,11 @@ def generate_tweet(prompt, max_tokens=280, temperature=0.8, max_length=280):
 
 if __name__ == "__main__":
     
-    tweets_file_path = "/your/path/to/user_tweets.txt"
+    tweets_file_path = "/home/ily4s/twitter_bot_projects/user_tweets.txt"
     tweets = read_tweets_from_file(tweets_file_path)
 
     
-    prompt = f"Write a tweet in the style of the user based on these tweets and do not put hashtag and quotation mark and make all letters lower case. : {tweets}"
+    prompt = f"Write a sarcastic tweet in the style of the user based on these tweets and do not put hashtag and quotation mark and make all letters lower case. : {tweets}"
     
     
     generated_tweet = generate_tweet(prompt)
